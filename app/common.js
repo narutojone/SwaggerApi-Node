@@ -4,20 +4,37 @@ exports.validateEmail = function(value) {
 }
 
 exports.validatePhone = function(value) {
-    var phoneno = /^\+?([0-9]{2})\)?[- ]?([0-9]{3})[- ]?([0-9]{4})[- ]?([0-9]{4})$/;
+    var phoneno = /^\+?([0-9]{1})\)?[- ]?([0-9]{3})[- ]?([0-9]{3})[- ]?([0-9]{4})$/;
     return value.match(phoneno);
 }
 
-exports.sendFullResponse = function(res, success, message, data) {
+exports.Gender = Object.freeze({
+    Male: 1,
+    Female: 2
+});
+
+exports.sendNormalResponse = function(res, success, message, data) {
     var result = {
-        result: { success: success,
-                  message: message,
-                  code: 200 },
-        data: data,
+      result: { success: success,
+                message: message,
+                code: 200 },
+      data: data
     };
 
     console.log(result);
-    res.send(result);
+    res.status(200).json(result);
+}
+
+exports.sendBadResponse = function(res, success, message, data) {
+    var result = {
+      result: { success: success,
+                message: message,
+                code: 500 },
+      data: data
+    };
+
+    console.log(result);
+    res.status(200).json(result);
 }
 
 Array.prototype.remove = function() {

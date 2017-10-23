@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: Hello World App
+  title: Let's Join Paws App
 # during dev, should point to your local machine
 host: localhost:10010
 # basePath prefixes all resource paths 
@@ -18,26 +18,101 @@ consumes:
 produces:
   - application/json
 paths:
-  /hello:
-    # binds a127 app logic to a route
-    x-swagger-router-controller: hello_world
+  /caregiver:
+    x-swagger-router-controller: CaregiverController
     get:
-      description: Returns 'Hello' to the caller
-      # used as the method name of the controller
-      operationId: hello
+      description: Returns all Caregivers from the system that the user has access to
+      operationId: findCaregivers
       parameters:
-        - name: name
+        - name: tags
           in: query
-          description: The name of the person to whom to say hello
+          description: tags to filter by
           required: false
-          type: string
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+        - name: limit
+          in: query
+          description: maximum number of results to return
+          required: false
+          type: integer
+          format: int32
       responses:
         "200":
-          description: Success
+          description: Carigiver Response
           schema:
-            # a pointer to a definition
-            $ref: "#/definitions/HelloWorldResponse"
-        # responses may fall through to errors
+            type: array
+            items:
+              $ref: '#/definitions/Caregiver'
+        default:
+          description: Unexpected Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    post:
+      summary: Adds a new Caregiver
+      operationId: signup
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            properties:
+              firstname:
+                type: string
+              lastname:
+                type: string
+              email:
+                type: string
+              phonenumber:
+                type: string
+              password:
+                type: string
+      responses:
+        "200":
+          description: Caregiver Added
+          schema:
+            $ref: "#/definitions/CaregiverSignupResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /caregiver/{id}:
+    x-swagger-router-controller: CaregiverController
+    get:
+      description: Returns a caregiver based on a single ID
+      operationId: findCaregiverByID
+      parameters:
+        - name: id
+          in: path
+          description: ID of caregiver to fetch
+          required: true
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Caregiver Response
+          schema:
+            $ref: '#/definitions/Caregiver'
+        default:
+          description: Unexpected Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      description: deletes a caregiver
+      operationId: deleteCaregiver
+      parameters:
+        - name: id
+          in: path
+          description: ID of Caregiver to delete
+          required: true
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Caregiver Deleted
+          schema:
+            $ref: "#/definitions/CaregiverDeleteResponse"
         default:
           description: Error
           schema:
@@ -46,15 +121,87 @@ paths:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
 definitions:
-  HelloWorldResponse:
-    required:
-      - message
+  Caregiver:
+    type: object
     properties:
-      message:
+      result:
+        type: object
+        properties:
+          success:
+            type: boolean
+          message:
+            type: string
+          code:
+            type: integer
+      data:
+        type: object
+        properties:
+          id:
+            type: integer
+          firstname:
+            type: string
+          lastname:
+            type: string
+          email:
+            type: string
+          phonenumber:
+            type: string
+          password:
+            type: string
+          image_path:
+            type: string
+          homeaddress:
+            type: string
+          city:
+            type: string
+          state:
+            type: string
+          zipcode:
+            type: string
+          description:
+            type: string
+          gender:
+            type: integer
+          rating:
+            type: number
+          latitude:
+            type: number
+          longitude:
+            type: number
+          pet_ids:
+            type: array
+            items:
+              type: integer
+  CaregiverSignupResponse:
+    type: object
+    properties:
+      result:
+        type: object
+        properties:
+          success:
+            type: boolean
+          message:
+            type: string
+          code:
+            type: integer
+      data:
+        type: string
+  CaregiverDeleteResponse:
+    type: object
+    properties:
+      result:
+        type: object
+        properties:
+          success:
+            type: boolean
+          message:
+            type: string
+          code:
+            type: integer
+      data:
         type: string
   ErrorResponse:
-    required:
-      - message
+    type: object
     properties:
       message:
         type: string
